@@ -18,11 +18,27 @@ def decorate_seg():
              title='Schelling model')
 
 class City:
-    def __init__(self, n, probs = [0.1, 0.45, 0.45]):
+    def __init__(self, n, r = "Moore", probs = [0.1, 0.45, 0.45]):
         self.make_grid(n, probs)
-        self.kernel = np.array([[1, 1, 1],
-                                [1, 0, 1],
-                                [1, 1, 1]], dtype=np.int8)
+        self.make_kernel(r)
+
+    def make_kernel(self, r):
+        print(r)
+        if(r == "Moore"): # Original kernel
+            self.kernel = np.array([[1, 1, 1],
+                                    [1, 0, 1],
+                                    [1, 1, 1]], dtype=np.int8)
+        else: 
+            # Variable radius kernel. I don't know how to do this with 2d list
+            # comprehension stuff so I just for looped it. It also is only 
+            # run once and kernel isn't very large.
+            self.kernel = np.zeros((2*r+1,2*r+1), dtype = np.int8)
+            for i in range(0, 2*r+1):
+                for j in range(0, 2*r+1):
+                    # print(i, j)
+                    self.kernel[i, j] = (abs(i-r) + abs(j-r) <= r) and \
+                        (abs(i-r)+abs(j-r) != 0)
+
 
     def make_grid(self, n, probs):
         """Make an array with two types of agents.
@@ -147,24 +163,29 @@ class City:
 # im = city.draw()
 # plt.show()
 
-city = City(n=50)
+##########################################
 
-# draw the initial grid
-plt.figure(figsize=(9,3))
-plt.subplot(1,3,1)
-city.draw()
+# city = City(n=50)
 
-# first update
-plt.subplot(1,3,2)
-for i in range(1000):
-    city.step()
-city.draw()
+# # draw the initial grid
+# plt.figure(figsize=(9,3))
+# plt.subplot(1,3,1)
+# city.draw()
 
-# second update
-plt.subplot(1,3,3)
-for i in range(1000):
-    city.step()
-city.draw()
+# # first update
+# plt.subplot(1,3,2)
+# for i in range(1000):
+#     city.step()
+# city.draw()
 
-plt.tight_layout()
-plt.show()
+# # second update
+# plt.subplot(1,3,3)
+# for i in range(1000):
+#     city.step()
+# city.draw()
+
+# plt.tight_layout()
+# plt.show()
+
+city = City(20, r = 3)
+print(city.kernel)
