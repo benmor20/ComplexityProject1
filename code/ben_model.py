@@ -16,15 +16,18 @@ from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 from scipy.signal import correlate2d
 import numba as nb
 
+
 def decorate(**options):
     plt.gca().set(**options)
     plt.tight_layout()
+
 
 # make a custom color map
 brg = cm.get_cmap('brg', 512)
 br_array = brg(np.linspace(0, 0.5, 256))
 cmap_no_empty = ListedColormap(br_array)
 cmap = ListedColormap(np.concatenate((np.ones((256, 4)), br_array)))
+
 
 def draw(grid):
     """Draws the grid.
@@ -44,15 +47,14 @@ def draw(grid):
     return plt.imshow(a, cmap if (grid == -1).sum() > 0 else cmap_no_empty, **options)
 
 
-
-"""# New Section"""
-
+# New Section
 def make_city(n, p_empty=0.1):
-  choices = np.array([0, 1], dtype=np.int8)
-  probs = [p_empty, 1 - p_empty]
-  empty_city = np.random.choice(choices, (n, n), p=probs)
-  full_city = np.random.rand(n, n)
-  return (empty_city - 1) + full_city * empty_city
+    choices = np.array([0, 1], dtype=np.int8)
+    probs = [p_empty, 1 - p_empty]
+    empty_city = np.random.choice(choices, (n, n), p=probs)
+    full_city = np.random.rand(n, n)
+    return (empty_city - 1) + full_city * empty_city
+
 
 def locs_where(condition):
     """Find cells where a boolean array is True.
