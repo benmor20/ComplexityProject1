@@ -23,16 +23,16 @@ def decorate_seg():
 
 
 class City:
-    def __init__(self, n, r=1, moore=False, probs=(0.1, 0.45, 0.45)):
+    def __init__(self, n, r=1, square=False, probs=(0.1, 0.45, 0.45)):
         self.grid = np.zeros((n, n))
         self.kernel = np.zeros((2*r+1, 2*r+1))
         self.make_grid(n, probs)
-        self.make_kernel(r, moore)
+        self.make_kernel(r, square)
 
-    def make_kernel(self, r, moore=False):
+    def make_kernel(self, r, square=False):
         size = 2 * r + 1
         shape = (size, size)
-        if moore:  # Original kernel
+        if square:  # Original kernel
             self.kernel = np.ones(shape, dtype=np.int8)
             self.kernel[r, r] = 0
         else: 
@@ -57,7 +57,7 @@ class City:
         choices = np.array([0, 1, 2], dtype=np.int8)
         self.grid = np.random.choice(choices, (n, n), p=probs)
 
-    def draw(self):
+    def draw(self, plot_show = True):
         """
         Draws the grid.
         """
@@ -72,7 +72,8 @@ class City:
         options = dict(interpolation='none', alpha=0.8)
         options['extent'] = [0, m, 0, n]
         plt.imshow(a, cmap, **options)
-        plt.show()
+        if(plot_show):
+            plt.show()
 
     def compute_percent_same(self):
         """For each cell, the number of same-color neighbors as a

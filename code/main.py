@@ -17,34 +17,34 @@ from schelling_base import City
 # plt.show()
 
 ##########################################
+city = City(n=50, r = 7, square = False)
 
-# city = City(n=50)
+# draw the initial grid
+plt.figure(figsize=(9,3))
+plt.subplot(1,3,1)
+city.draw(plot_show = False)
 
-# # draw the initial grid
-# plt.figure(figsize=(9,3))
-# plt.subplot(1,3,1)
+# first update
+plt.subplot(1,3,2)
+for i in range(1000):
+    city.step()
+city.draw(plot_show = False)
+
+# second update
+plt.subplot(1,3,3)
+for i in range(1000, 2000):
+    city.step()
+city.draw(plot_show = False)
+
+plt.tight_layout()
+plt.show()
+
+#################################
+
+# city = City(50, r=7, square=False)
+# print(city.kernel)
+# plt.figure(1)
 # city.draw()
-
-# # first update
-# plt.subplot(1,3,2)
-# for i in range(1000):
-#     city.step()
+# city.loop()
+# plt.figure(2)
 # city.draw()
-
-# # second update
-# plt.subplot(1,3,3)
-# for i in range(1000):
-#     city.step()
-# city.draw()
-
-# plt.tight_layout()
-# plt.show()
-
-
-city = City(50, r=7, moore=False)
-print(city.kernel)
-plt.figure(1)
-city.draw()
-city.loop()
-plt.figure(2)
-city.draw()
