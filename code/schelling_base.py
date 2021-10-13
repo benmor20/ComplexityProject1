@@ -96,6 +96,7 @@ class City:
         # This uses the percent of neighbors that are the same - empty neighbors are essentially not counted
         # On the off chance of only empty neighbors, the cell is assumed to be completely happy
         total_neighbors = sum(self.kernel)
+        np.seterr(divide='ignore', invalid='ignore')
         percent_same = np.where(num_not_empty == 0, 1,
                                 np.where(blue, num_blue, np.where(red, num_red, num_not_empty)) / num_not_empty)
         return percent_same
