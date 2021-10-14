@@ -1,3 +1,4 @@
+import multiprocessing
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.core.function_base import linspace
@@ -5,7 +6,8 @@ from schelling_base import City
 from schelling_base import decorate_seg
 import csv
 import os
-from multiprocessing import Process, Queue
+# from multiprocessing import Process, Queue, Pool, cpu_count
+import multiprocessing as mp
 import time
 
 
@@ -57,14 +59,14 @@ import time
 
 # nSteps = 10000
 # radii = 7
-# citySize = 100
+# citySize = 50
 # segs = np.zeros((nSteps, radii))
 # for r in range(1, radii+1):
 #     print("                                ", end = "\r")
 #     city = City(citySize, r = r)
 #     for s in range(nSteps):
 #         segs[s, r-1] = city.step()
-#         print("Radius: " + str(r) + ", Steps: " + str(s), end = "\r")
+#         # print("Radius: " + str(r) + ", Steps: " + str(s), end = "\r")
 
 # plt.plot(segs)
 # plt.legend(range(1, radii+1))
@@ -109,50 +111,44 @@ import time
 ###############################
 nSteps = 10000
 radii = range(1, 8)
-preferences = [0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
+preferences = [0.2, 0.25, 0.3, 0.31, 0.32, 0.325, 0.33, 0.34, 0.35, 0.4, 0.45, 0.5]
 # preferences = [0.2, 0.3, 0.4, 0.5]
-citySize = 100
+citySize = 100 # paper uses 50
+output_rows = []
 
-def calculate_s(queue, pref, r):
+def calculate_s(r, pref, i):
+    # For a given radius and preference, run the simulation
+    # i is for troubleshooting, doesn't do anything
     city = City(citySize, r = r)
-    city.loop(num_steps = nSteps, threshold = pref)
-    s = np.mean(city.compute_percent_same())
-    # print("                                                                       ", end = "\r")
-    print("Preference: " + str(pref) + ", Radius: " + str(r))
-    queue.put([pref, r, s])
+    s = city.loop_until_done(threshold = pref, max_steps=nSteps)
+    # s = np.mean(city.compute_percent_same())
+    print("Preference: " + str(pref) + ", Radius: " + str(r) + ", I: " + str(i))
+    return [pref, r, s, citySize, nSteps]
 
-def sortFunc(x):
-    return(str(x[0]) + "," + str(x[1]))
+#instead of doing 5 identical tasks, just loop within calculate_s
 
 if __name__ == "__main__":
-    queue = Queue()
-
-    # processes = [Process(target=calculate_s, args=(queue, p, r)) for p in preferences]
-    processes = []
-    for p in preferences:
+    params = []
+    for i in range(1): # Make an array of tuples of all combinations of input arguments
         for r in radii:
-            processes.append(Process(target=calculate_s, args=(queue, p, r,)))
-
-    for p in processes:
-        p.start()
-
-    for p in processes:
-        p.join()
+            for pr in preferences:
+                params.append((r, pr, i))
     
-    # alive = [p for p in processes if p.is_alive()]
-
-    # while(len(alive) > 0):
-    #     alive = [p for p in alive if p.is_alive()]
-    #     print("                                                                       ", end = "\r")
-    #     print("Alive: " + str(len(alive)))
-    #     time.sleep(0.1)
-
-    output_rows = [queue.get() for p in processes]
-
-    output_rows.sort(key = sortFunc)
+    with mp.Pool() as pool: # have the pool map each tuple onto calculate_s arguments
+        # Starmap is just unpacking the tuple into multiple arguments
+        # This will complete the operation with an optimal number of pool workers,
+        # making use of all CPU cores.
+        output_rows = pool.starmap(calculate_s, params)
+                
+    # Sort and add header to the list
+    output_rows.sort()
+    headers = ["preference","radius","segregation","city_size","num_steps"]
+    output_rows.insert(0, headers)
     print(output_rows)
+    
+    # Write the output list to CSV
     wd = os.path.dirname(__file__)
-    path = os.path.join(wd, "data", "data.csv")
+    path = os.path.join(wd, "data", "data2.csv")
     with open(path, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerows(output_rows)

@@ -87,7 +87,7 @@ class City:
         blue = self.grid == 2
 
         # count red neighbors, blue neighbors, and total
-        options = dict(mode='same', boundary='fill')
+        options = dict(mode='same', boundary='wrap')
         num_not_empty = correlate2d(non_empty, kernel, **options)
         num_red = correlate2d(red, kernel, **options)
         num_blue = correlate2d(blue, kernel, **options)
@@ -133,3 +133,18 @@ class City:
     def loop(self, num_steps=1000, threshold=0.375):
         for _ in range(num_steps):
             self.step(threshold)
+
+    def loop_until_done(self, threshold = 0.375, max_steps = 10000):
+        for i in range(max_steps):
+            percent_same = self.compute_percent_same()
+            unhappy_locs = utils.locs_where(percent_same < threshold)
+            if len(unhappy_locs) == 0:
+                return percent_same.mean()
+
+            empty_locs = utils.locs_where(self.grid == 0)
+            source = utils.random_loc(unhappy_locs)
+            dest = utils.random_loc(empty_locs)
+            self.move(source, dest)
+
+        return percent_same.mean()
+
