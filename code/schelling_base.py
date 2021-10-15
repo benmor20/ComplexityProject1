@@ -139,12 +139,12 @@ class City:
             percent_same = self.compute_percent_same()
             unhappy_locs = utils.locs_where(percent_same < threshold)
             if len(unhappy_locs) == 0:
-                return percent_same.mean()
+                return (percent_same.mean(), i)
 
             empty_locs = utils.locs_where(self.grid == 0)
             source = utils.random_loc(unhappy_locs)
             dest = utils.random_loc(empty_locs)
             self.move(source, dest)
 
-        return percent_same.mean()
+        return (percent_same.mean(), max_steps)
 

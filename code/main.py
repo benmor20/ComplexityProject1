@@ -1,14 +1,7 @@
-import multiprocessing
-import matplotlib.pyplot as plt
-import numpy as np
-from numpy.core.function_base import linspace
 from schelling_base import City
-from schelling_base import decorate_seg
 import csv
 import os
-# from multiprocessing import Process, Queue, Pool, cpu_count
 import multiprocessing as mp
-import time
 
 
 # city = City(50, r=3)
@@ -113,23 +106,21 @@ nSteps = 10000
 radii = range(1, 8)
 preferences = [0.2, 0.25, 0.3, 0.31, 0.32, 0.325, 0.33, 0.34, 0.35, 0.4, 0.45, 0.5]
 # preferences = [0.2, 0.3, 0.4, 0.5]
-citySize = 100 # paper uses 50
+citySize = 50 # paper uses 50
 output_rows = []
 
 def calculate_s(r, pref, i):
     # For a given radius and preference, run the simulation
     # i is for troubleshooting, doesn't do anything
     city = City(citySize, r = r)
-    s = city.loop_until_done(threshold = pref, max_steps=nSteps)
+    s, t = city.loop_until_done(threshold = pref, max_steps=nSteps)
     # s = np.mean(city.compute_percent_same())
     print("Preference: " + str(pref) + ", Radius: " + str(r) + ", I: " + str(i))
-    return [pref, r, s, citySize, nSteps]
-
-#instead of doing 5 identical tasks, just loop within calculate_s
+    return [pref, r, s, t, citySize]
 
 if __name__ == "__main__":
     params = []
-    for i in range(1): # Make an array of tuples of all combinations of input arguments
+    for i in range(10): # Make an array of tuples of all combinations of input arguments
         for r in radii:
             for pr in preferences:
                 params.append((r, pr, i))
@@ -142,7 +133,7 @@ if __name__ == "__main__":
                 
     # Sort and add header to the list
     output_rows.sort()
-    headers = ["preference","radius","segregation","city_size","num_steps"]
+    headers = ["preference","radius","segregation","num_steps","city_size"]
     output_rows.insert(0, headers)
     print(output_rows)
     
