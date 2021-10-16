@@ -27,6 +27,6 @@ class HomoHeteroCity(City):
     def find_unhappy(self, threshold=0.375):
         percent_same = self.compute_percent_same()
         unhappy_homo = (self.hetero == 0) & (percent_same < threshold)
-        unhappy_hetero = (self.hetero == 1) & (percent_same > threshold)
+        unhappy_hetero = (self.hetero == 1) & ((percent_same < threshold / 2) | (percent_same > 1 - threshold / 2))
         return utils.locs_where(unhappy_hetero) + utils.locs_where(unhappy_homo)
 
