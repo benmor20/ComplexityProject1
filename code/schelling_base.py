@@ -62,7 +62,7 @@ class City:
         choices = np.array([0, 1, 2], dtype=np.int8)
         self.array = np.random.choice(choices, (n, n), p=probs)
 
-    def draw(self, plot_show=True):
+    def draw(self, plot_show=True, grid_lines=False):
         """
         Draws the grid.
         """
@@ -77,6 +77,11 @@ class City:
         options = dict(interpolation='none', alpha=0.8)
         options['extent'] = [0, m, 0, n]
         plt.imshow(a, cmap if len(utils.locs_where(self.grid == 0)) > 0 else cmap_no_empty, **options)
+        if grid_lines:
+            ax = plt.gca()
+            ax.set_xticks(np.arange(0, self.array.shape[0], 1))
+            ax.set_yticks(np.arange(0, self.array.shape[1], 1))
+            ax.grid(color='k')
         if plot_show:
             plt.show()
 
