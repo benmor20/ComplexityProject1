@@ -10,25 +10,31 @@ With this project, we want to further investigate the Schelling model of segrega
 Schelling’s original model centered on a grid of squares, representing some city. Each square would either be red, blue, or empty. The inhabitants of the grid are “happy” if the percent of the houses in their Moore neighborhood (the eight surrounding cells) that share a color with them is above a certain threshold.
 
 ![Base Schelling threshold example 1](imgs/moore_ex_1.png)
+
 Figure 2.1: The center square is happy, as the surrounding cells are more than 37.5% red.
 
 ![Base Schelling threshold example 2](imgs/moore_ex_2.png)
+
 Figure 2.2: The center square is unhappy, as the surrounding cells are less than 37.5% red.
 
 ![Base Schelling threshold example 3](imgs/moore_ex_3.png)
+
 Figure 2.3: The center square is happy, as although there are only two red squares, more than 37.5% of the surrounding *occupied* cells are red.
 
 ![Base Schelling threshold example 4](imgs/moore_ex_4.png)
+
 Figure 2.4: The center square is unhappy, as less than 37.5% of the surrounding occupied cells are red.
 
 Each time step, Schelling selects an unhappy square at random and moves it to an empty cell, and runs this simulation with a few thousand updates. Schelling shows that even with relatively low thresholds, segregation occurs in a society, as shown in Figure 2.5, below.
 
 ![An example city with Schelling’s original model](imgs/schelling_moore_city.png)
+
 Figure 2.5: An example city generated with Schelling’s original model. As time progresses, the city becomes more segregated
 
 To track the movement towards segregation, we calculate, for each cell, the percentage of occupied houses they can see which share a color with them. The segregation coefficient for the entire city is the average of all of these. Plotting this coefficient over time gives a graph like that in Figure 2.6.
 
 ![Schelling model results](imgs/schelling_moore_results.png)
+
 Figure 2.6: The average segregation coefficient over time. The flat section at the end shows the equilibrium position when all cells are happy, somewhere around 75%.
 
 ### 3. Variable Radius
@@ -36,11 +42,13 @@ Figure 2.6: The average segregation coefficient over time. The flat section at t
 In the variable radius model, the only thing that changes is the kernel - each cell’s effective vision. The variable radius model assumes any cell is a neighbor if the Manhattan distance from the center cell to the cell in question is less than or equal to the radius. Figure 3.1 shows the Moore kernel from the original model and kernels for each radius value we tested:
 
 ![The kernels we used for testing the Schelling model and the vision radius expansion](imgs/kernel_demo.png)
+
 Figure 3.1: The Moore kernel and various von Neumann kernels
 
 Here is an image of the graph created using the vision radius model, which measures the final segregation level versus vision radius and preference threshold:
 
 ![Segregation vs. Vision Radius and Preference for the vision radius model](imgs/s_vs_r_p_base.png)
+
 Figure 3.2: Equilibrium segregation coefficient across various visions and thresholds
 
 
