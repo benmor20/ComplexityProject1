@@ -10,6 +10,7 @@ import utils
 palette = sns.color_palette('muted')
 colors = 'white', palette[1], palette[0]
 cmap = LinearSegmentedColormap.from_list('cmap', colors)
+cmap_no_empty = LinearSegmentedColormap.from_list('cmap', (palette[1], palette[0]))
 
 def decorate(**options):
     plt.gca().set(**options)
@@ -24,10 +25,14 @@ def decorate_seg():
 
 class City:
     def __init__(self, n, r=1, square=False, probs=(0.1, 0.45, 0.45)):
-        self.grid = np.zeros((n, n))
+        self.array = np.zeros((n, n))
         self.kernel = np.zeros((2*r+1, 2*r+1))
         self.make_grid(n, probs)
         self.make_kernel(r, square)
+
+    @property
+    def grid(self):
+        return self.array
 
     def make_kernel(self, r, square=False):
         size = 2 * r + 1
@@ -55,9 +60,9 @@ class City:
         return: NumPy array
         """
         choices = np.array([0, 1, 2], dtype=np.int8)
-        self.grid = np.random.choice(choices, (n, n), p=probs)
+        self.array = np.random.choice(choices, (n, n), p=probs)
 
-    def draw(self, plot_show = True):
+    def draw(self, plot_show=True):
         """
         Draws the grid.
         """
@@ -71,8 +76,8 @@ class City:
 
         options = dict(interpolation='none', alpha=0.8)
         options['extent'] = [0, m, 0, n]
-        plt.imshow(a, cmap, **options)
-        if(plot_show):
+        plt.imshow(a, cmap if len(utils.locs_where(self.grid == 0)) > 0 else cmap_no_empty, **options)
+        if plot_show:
             plt.show()
 
     def compute_percent_same(self):
@@ -101,50 +106,54 @@ class City:
                                 np.where(blue, num_blue, np.where(red, num_red, num_not_empty)) / num_not_empty)
         return percent_same
 
+    def avg_percent_same(self):
+        """
+        returns the average percent same
+        """
+        return self.compute_percent_same().mean()
+
     def move(self, source, dest):
         """Swap the agents at source and dest.
 
         source: location tuple
         dest: location tuple
         """
-        
-        self.grid[dest], self.grid[source] = self.grid[source], self.grid[dest]
+        self.array[dest], self.array[source] = self.array[source].copy(), self.array[dest].copy()  # Need these .copy for the Homo/Hetero model
+
+    def find_unhappy(self, threshold=0.375):
+        """
+        Find the locations where cells are unhappy
+
+        threshold: percent of same-color neighbors needed to be happy
+
+        returns a list of tuples giving the indexes of each unhappy location
+        """
+        percent_same = self.compute_percent_same()
+        return utils.locs_where(percent_same < threshold)
 
     def step(self, threshold=0.375):
         """Simulate one time step.
 
         threshold: percent of same-color neighbors needed to be happy
 
-        return: average percentage of non-opposite neighbors
+        returns the number of unhappy locations
         """
-        percent_same = self.compute_percent_same()
-        unhappy_locs = utils.locs_where(percent_same < threshold)
-        if len(unhappy_locs) == 0:
-            return percent_same.mean()
-
-        empty_locs = utils.locs_where(self.grid == 0)
-        source = utils.random_loc(unhappy_locs)
-        dest = utils.random_loc(empty_locs)
-        self.move(source, dest)
-
-        percent_same = self.compute_percent_same()
-        return percent_same.mean()
+        unhappy_locs = self.find_unhappy(threshold)
+        if len(unhappy_locs) > 0:
+            empty_locs = utils.locs_where(self.grid == 0)
+            source = utils.random_loc(unhappy_locs)
+            dest = utils.random_loc(empty_locs)
+            self.move(source, dest)
+        return len(unhappy_locs)
 
     def loop(self, num_steps=1000, threshold=0.375):
         for _ in range(num_steps):
             self.step(threshold)
 
-    def loop_until_done(self, threshold = 0.375, max_steps = 10000):
+    def loop_until_done(self, threshold=0.375, max_steps=10000):
         for i in range(max_steps):
-            percent_same = self.compute_percent_same()
-            unhappy_locs = utils.locs_where(percent_same < threshold)
-            if len(unhappy_locs) == 0:
-                return (percent_same.mean(), i)
-
-            empty_locs = utils.locs_where(self.grid == 0)
-            source = utils.random_loc(unhappy_locs)
-            dest = utils.random_loc(empty_locs)
-            self.move(source, dest)
-
-        return (percent_same.mean(), max_steps)
+            num_unhappy = self.step(threshold)
+            if num_unhappy == 0:
+                return self.avg_percent_same(), i
+        return self.avg_percent_same(), max_steps
 
