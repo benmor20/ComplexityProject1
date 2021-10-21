@@ -41,7 +41,7 @@ Figure 2.6: The average segregation coefficient over time. The flat section at t
 
 In the variable radius model, the only thing that changes is the kernel - each cell’s effective vision. The variable radius model assumes any cell is a neighbor if the Manhattan distance from the center cell to the cell in question is less than or equal to the radius. Figure 3.1 shows the Moore kernel from the original model and kernels for each radius value we tested:
 
-![The kernels we used for testing the Schelling model and the vision radius expansion](imgs/kernel_demo.png)
+![The kernels we used for testing the Schelling model and the vision radius expansion](imgs/kernels_demo.png)
 
 Figure 3.1: The Moore kernel and various von Neumann kernels
 
