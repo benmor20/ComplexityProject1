@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
 from scipy.signal import correlate2d
+import itertools
 
 import utils
 
@@ -156,7 +157,7 @@ class City:
             self.step(threshold)
 
     def loop_until_done(self, threshold=0.375, max_steps=10000):
-        for i in range(max_steps):
+        for i in (range(max_steps) if max_steps > 0 else itertools.count()):
             num_unhappy = self.step(threshold)
             if num_unhappy == 0:
                 return self.avg_percent_same(), i
