@@ -90,7 +90,8 @@ p <- df_seg %>%
     x = "Radius",
     y = "Segregation",
     color = "Preference"
-  )
+  ) +
+  guides(color = guide_legend(reverse = TRUE))
 ggsave(filename = "graph1.jpg", plot = p, device = "jpg", width = 8, height = 5)
 p
 ```
@@ -102,6 +103,7 @@ p <- df_seg %>%
     segregation = mean(segregation)
   ) %>%
   filter(percent_hetero %in% c(0,0.4,0.8)) %>%
+  # arrange(desc(preference)) %>%
   mutate(
     preference = as.character(preference),
     percent_hetero = paste("% Hetero: ",percent_hetero)
@@ -113,6 +115,7 @@ p <- df_seg %>%
     )
   ) +
   geom_line(aes(color = preference), size = 1) +
+  geom_point(aes(color = preference), size = 2) +
   theme_minimal() +
   facet_wrap(~ percent_hetero) +
   labs(
@@ -120,8 +123,10 @@ p <- df_seg %>%
     x = "Radius",
     y = "Segregation",
     color = "Preference"
-  )
+  ) +
+  guides(color = guide_legend(reverse = TRUE))
 ggsave(filename = "graph2.jpg", plot = p, device = "jpg", width = 8, height = 5)
+p
 
 ```
 
@@ -181,8 +186,8 @@ p <- df_seg %>%
     color = "% Hetero",
     shape = "Preference"
   )
-
 ggsave(filename = "graph3.jpg", plot = p, device = "jpg", width = 8, height = 5)
+p
 ```
 
 
