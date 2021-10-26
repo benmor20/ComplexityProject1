@@ -1,0 +1,213 @@
+---
+title: "R Notebook"
+output: 
+  github_document:
+    toc: true
+---
+```{r}
+library(tidyverse)
+library(viridis)
+```
+
+```{r include=FALSE}
+theme_common <- function() {
+  theme_minimal() %+replace%
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(margin = margin(4, 4, 4, 4), size = 16),
+    axis.title.y = element_text(margin = margin(4, 4, 4, 4), size = 16, angle = 90),
+
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 12),
+
+    strip.text.x = element_text(size = 12),
+    strip.text.y = element_text(size = 12),
+
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_line(color = "grey90"),
+
+    aspect.ratio = 10/16,
+
+    plot.margin = unit(c(t = +0, b = +0, r = +0, l = +0), "cm"),
+    plot.title = element_text(size = 18),
+    # plot.title.position = "plot",
+    plot.subtitle = element_text(size = 16),
+    plot.caption = element_text(size = 12)
+  )
+}
+```
+
+
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+df_seg <- read.csv("data/ext_data.csv")
+df_seg %>%
+  group_by(preference,percent_hetero,radius) %>%
+  summarize(
+    segregation = mean(segregation)
+  ) %>%
+  mutate(
+    percent_hetero = as.character(percent_hetero)
+  ) %>%
+  ggplot() +
+  geom_line(
+    aes(
+      x = preference, 
+      y = segregation, 
+      color = percent_hetero
+    )) +
+  facet_wrap( ~ radius)
+```
+
+```{r}
+p <- df_seg %>%
+  group_by(preference,percent_hetero,radius) %>%
+  summarize(
+    segregation = mean(segregation)
+  ) %>%
+  mutate(
+    Preference = as.character(preference),
+    Radius = radius,
+    Segregation = segregation
+  ) %>%
+  filter(percent_hetero == 0) %>%
+  ggplot(
+    aes(
+      x = radius,
+      y = segregation
+    )
+  ) +
+  geom_line(aes(color = Preference), size = 1) +
+  geom_point(aes(color = Preference), size = 2) +
+  theme_minimal() +
+  labs(
+    title = "Radius vs. Segregation for different Preference Thresholds",
+    x = "Radius",
+    y = "Segregation",
+    color = "Preference"
+  )
+ggsave(filename = "graph1.jpg", plot = p, device = "jpg", width = 8, height = 5)
+```
+
+```{r}
+p <- df_seg %>%
+  group_by(preference,percent_hetero,radius) %>%
+  summarize(
+    segregation = mean(segregation)
+  ) %>%
+  filter(percent_hetero %in% c(0,0.4,0.8)) %>%
+  mutate(
+    preference = as.character(preference),
+    percent_hetero = paste("% Hetero: ",percent_hetero)
+  ) %>%
+  ggplot(
+    aes(
+      x = radius,
+      y = segregation
+    )
+  ) +
+  geom_line(aes(color = preference), size = 1) +
+  # geom_point(aes(color = preference), size = 1) +
+  theme_minimal() +
+  facet_wrap(~ percent_hetero) +
+  labs(
+    title = "Segregation Levels for Several % Heteros",
+    x = "Radius",
+    y = "Segregation",
+    color = "Preference"
+  )
+ggsave(filename = "graph2.jpg", plot = p, device = "jpg", width = 8, height = 5)
+
+
+
+
+
+```
+
+```{r}
+df_seg %>%
+  group_by(preference,percent_hetero,radius) %>%
+  summarize(
+    segregation = mean(segregation)
+  ) %>%
+  mutate(
+    preference = as.character(preference)
+  ) %>%
+  # filter(radius == 1) %>%
+  ggplot() +
+  geom_line(
+    aes(
+      x = percent_hetero, 
+      y = segregation, 
+      color = preference
+    )) +
+  facet_wrap(~radius)
+```
+
+```{r}
+p <- df_seg %>%
+  group_by(preference,percent_hetero,radius) %>%
+  summarize(
+    segregation = mean(segregation)
+  ) %>%
+  mutate(
+    percent_hetero = as.character(percent_hetero),
+    preference = as.character(preference)
+  ) %>%
+  filter(preference == 0.35) %>%
+  ggplot() +
+  geom_line(
+    aes(
+      x = radius, 
+      y = segregation,
+      color = percent_hetero
+    ),
+    size = 1
+  ) +
+  geom_point(
+    aes(
+      x = radius, 
+      y = segregation,
+      color = percent_hetero,
+      shape = preference
+    ),
+    size = 2
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Segregation vs. Radius for different % Hetero",
+    x = "Radius",
+    y = "Segregation",
+    color = "% Hetero",
+    shape = "Preference"
+  )
+
+ggsave(filename = "graph3.jpg", plot = p, device = "jpg", width = 8, height = 5)
+```
+
+
+```{r}
+df_seg %>%
+  group_by(preference,percent_hetero,radius) %>%
+  summarize(
+    segregation = mean(segregation) #%>% round(2) %>% as.character()
+  ) %>%
+  filter(preference != 0.325) %>%
+  ggplot() +
+  geom_tile(
+    aes(
+      # x = percent_hetero,
+      x = radius,
+      y = preference, 
+      fill = segregation
+    )) +
+  # facet_wrap(~radius) +
+  facet_wrap(~percent_hetero) +
+  theme_minimal() +
+  scale_fill_viridis(option="plasma")
+```
