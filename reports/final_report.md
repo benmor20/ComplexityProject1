@@ -1,6 +1,8 @@
 # Adding Heterogeneity to the Schelling Model
 ## Mira Flynn and Ben Morris
 
+[Colab Notebook with our project code](https://colab.research.google.com/drive/1lrm4qpaeLpzPvSNegHmNPQLhv9xMmGWO?usp=sharing)
+
 ### 1. Abstract
 
 With this project, we want to further investigate the Schelling model of segregation. We recreate experiments from several papers that include Schelling's original model and papers including an extension of the model, varying vision distance of each cell. After investigating those models, we further extend Schelling’s model by exploring the addition of a preference for heterogeneity. In real life, people may prefer to be around a varied assortment of people. Here, we explore what threshold of percent preference for heterogeneity leads to integrated societies across various vision distances.
