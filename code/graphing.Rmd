@@ -46,6 +46,10 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 
 ```{r}
 df_seg <- read.csv("data/ext_data.csv")
+```
+
+
+```{r}
 df_seg %>%
   group_by(preference,percent_hetero,radius) %>%
   summarize(
@@ -155,11 +159,11 @@ p <- df_seg %>%
   summarize(
     segregation = mean(segregation)
   ) %>%
+  filter(preference %in% c(0.3,0.35,0.4)) %>%
   mutate(
     percent_hetero = as.character(percent_hetero),
-    preference = as.character(preference)
+    preference = paste("Preference: ",preference)
   ) %>%
-  filter(preference == 0.35) %>%
   ggplot() +
   geom_line(
     aes(
@@ -173,8 +177,7 @@ p <- df_seg %>%
     aes(
       x = radius, 
       y = segregation,
-      color = percent_hetero,
-      shape = preference
+      color = percent_hetero
     ),
     size = 2
   ) +
@@ -183,9 +186,9 @@ p <- df_seg %>%
     title = "Segregation vs. Radius for different % Hetero",
     x = "Radius",
     y = "Segregation",
-    color = "% Hetero",
-    shape = "Preference"
-  )
+    color = "% Hetero"
+  ) +
+  facet_wrap(~preference)
 ggsave(filename = "graph3.jpg", plot = p, device = "jpg", width = 8, height = 5)
 p
 ```
